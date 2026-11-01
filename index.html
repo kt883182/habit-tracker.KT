@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-accent="indigo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HabitFlow Pro - Modern Habit Tracker & Productivity Operating System</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EEF2FF',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- External CDN Libraries: Chart.js, Canvas-Confetti, SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="selection:bg-indigo-500 selection:text-white">
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Floating Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Heatmap Tooltip -->
+  <div id="heatmap-tooltip" class="custom-tooltip"></div>
+
+  <!-- Root Application Layout -->
+  <div class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Desktop Sidebar Navigation (Apple & Linear inspired) -->
+    <aside class="hidden lg:flex flex-col w-64 glass-panel border-r border-slate-800/80 sticky top-0 h-screen p-5 justify-between shrink-0 z-30">
+      <div>
+        <!-- App Logo & Branding -->
+        <div class="flex items-center gap-3 px-2 py-3 mb-6">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+            <svg class="w-6 h-6 stroke-[2.2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base font-bold tracking-tight text-slate-100 flex items-center gap-1.5">
+              HabitFlow <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">Pro</span>
+            </h1>
+            <p class="text-[11px] text-slate-400 font-medium">Daily Compound Discipline</p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 text-sm font-medium">
+          <button data-nav-target="dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 font-semibold transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            Dashboard
+          </button>
+
+          <button data-nav-target="matrix" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Monthly Grid & Heatmap
+          </button>
+
+          <button data-nav-target="analytics" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Productivity Analytics
+          </button>
+
+          <button data-nav-target="gamification" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            XP & Achievements
+          </button>
+
+          <button data-nav-target="timer" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Pomodoro Focus
+          </button>
+
+          <button data-nav-target="journal" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Daily Journal & Mood
+          </button>
+
+          <button data-nav-target="goals" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Milestone Goals
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sidebar Bottom: Gamification Rank & Quick Settings -->
+      <div class="space-y-4 pt-4 border-t border-slate-800/80">
+        <!-- User Level & XP Capsule -->
+        <div class="p-3 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+          <div class="flex items-center justify-between mb-1.5">
+            <span id="user-level-badge" class="font-mono text-xs font-bold text-indigo-400">Lvl 1</span>
+            <span id="user-rank-badge" class="px-2 py-0.5 text-[10px] font-semibold rounded-full border text-slate-400 bg-slate-800 border-slate-700">Beginner</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-slate-700/60 overflow-hidden mb-1">
+            <div id="user-xp-progress" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+            <span id="user-xp-display">0 XP</span>
+            <span id="user-xp-ratio">0 / 18 XP (0%)</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+          <button onclick="window.app.openSettingsModal()" class="hover:text-slate-200 flex items-center gap-1.5 transition-colors" title="Settings & Data Backup">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </button>
+
+          <button onclick="window.app.openShortcutsModal()" class="hover:text-slate-200 font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700/60" title="Shortcuts (?)">
+            ?
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 pb-20 lg:pb-10">
+
+      <!-- Top Glass Navbar -->
+      <header class="glass-nav sticky top-0 z-20 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+        <!-- Mobile Brand Title -->
+        <div class="flex items-center gap-2.5 lg:hidden">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            ⚡
+          </div>
+          <span class="font-bold text-sm tracking-tight text-slate-100">HabitFlow <span class="text-xs text-indigo-400 font-mono">Pro</span></span>
+        </div>
+
+        <!-- Date & Real-time Indicator -->
+        <div class="hidden sm:flex items-center gap-3 text-xs text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-medium text-slate-300">Live Sync</span>
+          </div>
+          <span class="text-slate-600">•</span>
+          <span id="top-bar-date" class="font-medium">November 1, 2026</span>
+        </div>
+
+        <!-- Right Header Actions -->
+        <div class="flex items-center gap-2.5 ml-auto">
+          <!-- Dark / Light Mode Toggle -->
+          <button onclick="window.app.toggleTheme()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/60" title="Toggle Theme (D)">
+            <span id="theme-toggle-icon">🌙</span>
+          </button>
+
+          <!-- Export Excel Quick Action -->
+          <button onclick="window.app.export.exportExcel()" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700/60 transition-colors" title="Export to Excel Spreadsheet">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Excel
+          </button>
+
+          <!-- Primary Add Habit Button -->
+          <button onclick="window.app.openAddHabitModal()" class="px-4 py-2 rounded-xl glow-btn text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+            <span class="text-base font-bold">+</span>
+            <span>New Habit</span>
+            <kbd class="hidden md:inline-block text-[10px] bg-white/20 px-1 py-0.2 rounded font-mono ml-1">N</kbd>
+          </button>
+
+          <!-- User Avatar Profile Button -->
+          <button onclick="window.app.openProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-indigo-500/40 flex items-center justify-center text-sm hover:scale-105 transition-transform" title="User Profile">
+            ⚡
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Container -->
+      <div class="px-4 sm:px-8 py-6 max-w-7xl w-full mx-auto space-y-8">
+
+        <!-- ================= VIEW 1: DASHBOARD ================= -->
+        <section id="view-dashboard" class="app-view space-y-8">
+          
+          <!-- Hero Section: Productivity Score Circle & Key Metrics -->
+          <div class="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden border border-white/5">
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
+              
+              <!-- Left: Greeting & Motivational Quote -->
+              <div class="space-y-4 max-w-xl text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                  Daily Consistency Operating System
+                </div>
+
+                <h2 id="hero-greeting-text" class="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+                  Good morning, <span class="text-slate-100 font-bold">Kartik</span> 👋
+                </h2>
+
+                <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80 relative group">
+                  <p id="hero-quote-text" class="text-sm italic text-slate-300 leading-relaxed font-serif">
+                    "The secret of getting ahead is getting started."
+                  </p>
+                  <div class="flex items-center justify-between mt-2">
+                    <span id="hero-quote-author" class="text-xs font-medium text-indigo-400">— Mark Twain</span>
+                    <button id="btn-refresh-quote" class="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1" title="Get new inspiration">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-1">
+                  <button onclick="window.app.openAddHabitModal()" class="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700/60 transition-colors flex items-center gap-1.5">
+                    <span>+</span> Add Habit
+                  </button>
+                  <button onclick="window.app.switchTab('timer')" class="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-indigo-300 border border-slate-700/60 transition-colors flex items-center gap-1.5">
+                    <span>⏱️</span> Pomodoro Focus
+                  </button>
+                  <button onclick="window.app.switchTab('journal')" class="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-purple-300 border border-slate-700/60 transition-colors flex items-center gap-1.5">
+                    <span>✍️</span> Reflect
+                  </button>
+                  <button onclick="window.app.openShortcutsModal()" class="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-400 border border-slate-700/60 transition-colors font-mono">
+                    ?
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right: Large Circular SVG Productivity Score -->
+              <div class="flex flex-col items-center shrink-0">
+                <div class="relative w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center">
+                  <svg viewBox="0 0 36 36" class="w-full h-full circular-chart">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path id="hero-circle-ring" class="circle-progress" stroke="#F59E0B" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Today</span>
+                    <span id="hero-circle-score" class="text-3xl sm:text-4xl font-extrabold font-mono text-slate-100 my-0.5">0%</span>
+                    <span id="hero-circle-tier" class="text-[11px] font-semibold text-slate-400">🌱 Getting Started</span>
+                  </div>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-2 text-center">Score computed from routine completions</div>
+              </div>
+
+            </div>
+
+            <!-- Overview Stat Cards (5 Cards) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mt-8 pt-6 border-t border-slate-800/60">
+              <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Habits</div>
+                <div id="hero-stat-total" class="text-xl sm:text-2xl font-bold font-mono text-slate-100 mt-1">0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Active in routine</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Completed Today</div>
+                <div id="hero-stat-completed" class="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">0/0</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">0 pending</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Streak</div>
+                <div id="hero-stat-streak" class="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1">🔥 0d</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Continuous pace</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Best Streak</div>
+                <div id="hero-stat-best-streak" class="text-xl sm:text-2xl font-bold font-mono text-indigo-400 mt-1">🏆 0d</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">All-time record</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/60 col-span-2 sm:col-span-1">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Monthly Pace</div>
+                <div id="hero-stat-monthly-pct" class="text-xl sm:text-2xl font-bold font-mono text-purple-400 mt-1">0%</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Current month avg</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Smart AI Insights Highlights Strip -->
+          <div id="insights-cards-container" class="space-y-4"></div>
+
+          <!-- Habits Management & Filters Bar -->
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold text-slate-100">Today's Routine</h3>
+                <p class="text-xs text-slate-400">Click checkboxes to toggle status (None → Completed → Partial)</p>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="relative max-w-xs w-full">
+                <input id="habit-search-input" type="text" placeholder="Search habits..."
+                       class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900/70 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Filters Bar (Category Pills & Dropdowns) -->
+            <div class="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-slate-900/50 border border-slate-800/80 text-xs">
+              <!-- Category Pills -->
+              <div id="habit-category-filters" class="flex flex-wrap items-center gap-1">
+                <button data-category="All" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-medium shadow-sm transition-all">All</button>
+                <button data-category="Health" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">Health</button>
+                <button data-category="Fitness" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">Fitness</button>
+                <button data-category="Study" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">Study</button>
+                <button data-category="Work" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">Work</button>
+                <button data-category="Personal Growth" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 font-medium transition-all">Growth</button>
+              </div>
+
+              <!-- Priority, Status & Sort Controls -->
+              <div class="flex items-center gap-2 ml-auto">
+                <select id="habit-priority-filter" class="bg-slate-800 text-slate-300 text-xs rounded-lg px-2.5 py-1.5 border border-slate-700/60 focus:outline-none">
+                  <option value="All">All Priorities</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+
+                <select id="habit-status-filter" class="bg-slate-800 text-slate-300 text-xs rounded-lg px-2.5 py-1.5 border border-slate-700/60 focus:outline-none">
+                  <option value="All">All Statuses</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Partial">Partial</option>
+                  <option value="Completed">Completed</option>
+                </select>
+
+                <select id="habit-sort-select" class="bg-slate-800 text-slate-300 text-xs rounded-lg px-2.5 py-1.5 border border-slate-700/60 focus:outline-none">
+                  <option value="order">Custom Order</option>
+                  <option value="priority">Priority</option>
+                  <option value="streak">Streak</option>
+                  <option value="name">Name (A-Z)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Habits Grid Container -->
+            <div id="habits-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+
+          <!-- Personal Records & Milestone Highlights -->
+          <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <span>🏆</span> Personal Records & Milestones
+                </h3>
+                <p class="text-xs text-slate-400">Your historical peak discipline highlights</p>
+              </div>
+              <button onclick="window.app.switchTab('analytics')" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
+                View Graphs →
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80">
+                <div class="text-xs text-slate-400">Peak Productivity Day</div>
+                <div id="record-best-day" class="text-lg font-bold font-mono text-emerald-400 mt-1">0%</div>
+                <div class="text-[10px] text-slate-500">Day 1 starting</div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80">
+                <div class="text-xs text-slate-400">Longest Streak</div>
+                <div id="record-longest-streak" class="text-lg font-bold font-mono text-amber-400 mt-1">0 days</div>
+                <div class="text-[10px] text-slate-500">Unbroken momentum</div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80">
+                <div class="text-xs text-slate-400">Lifetime Completions</div>
+                <div id="record-lifetime-completions" class="text-lg font-bold font-mono text-indigo-400 mt-1">0</div>
+                <div class="text-[10px] text-slate-500">Habits accomplished</div>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/80">
+                <div class="text-xs text-slate-400">Total Focus Time</div>
+                <div id="record-focus-hours" class="text-lg font-bold font-mono text-purple-400 mt-1">0.0 hrs</div>
+                <div class="text-[10px] text-slate-500">Pomodoro sprint time</div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 2: MONTHLY GRID & HEATMAP ================= -->
+        <section id="view-matrix" class="app-view hidden space-y-8">
+          
+          <!-- Monthly Habit Grid Matrix Panel -->
+          <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <span>📅</span> Monthly Habit Matrix
+                </h3>
+                <p class="text-xs text-slate-400">GitHub-style monthly checkbox panel. Click any day cell to cycle status.</p>
+              </div>
+
+              <!-- Month Switcher Controls -->
+              <div class="flex items-center gap-2">
+                <button id="matrix-prev-month" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700/60 transition-colors">
+                  ← Prev
+                </button>
+                <span id="matrix-month-title" class="px-3 py-1.5 rounded-xl bg-slate-900 font-semibold text-xs text-indigo-300 border border-slate-800 min-w-[130px] text-center font-mono">
+                  November 2026
+                </span>
+                <button id="matrix-next-month" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700/60 transition-colors">
+                  Next →
+                </button>
+                <button id="matrix-today-btn" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 text-xs font-medium border border-indigo-500/30 transition-colors">
+                  Today
+                </button>
+              </div>
+            </div>
+
+            <!-- Legend Indicator -->
+            <div class="flex items-center gap-4 text-xs text-slate-400 pt-1">
+              <span class="font-medium">Indicators:</span>
+              <div class="flex items-center gap-1.5">
+                <div class="w-4 h-4 rounded matrix-cell-none"></div>
+                <span>Not Done</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-4 h-4 rounded matrix-cell-partial flex items-center justify-center font-mono text-[9px] font-bold">½</div>
+                <span>Partial (50%)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-4 h-4 rounded matrix-cell-completed flex items-center justify-center text-white text-[9px]">✓</div>
+                <span>Completed (100%)</span>
+              </div>
+            </div>
+
+            <!-- Scrollable Matrix Table -->
+            <div id="monthly-matrix-container" class="matrix-container rounded-2xl border border-slate-800/80 bg-slate-900/40 p-2"></div>
+          </div>
+
+          <!-- Yearly 52-Week Activity Heatmap -->
+          <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <span>🟩</span> Yearly Discipline Heatmap
+                </h3>
+                <p class="text-xs text-slate-400">52-week activity map with intensity based on daily productivity score</p>
+              </div>
+
+              <!-- Heatmap Legend -->
+              <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                <span>Less</span>
+                <div class="w-3 h-3 rounded-sm heat-level-0"></div>
+                <div class="w-3 h-3 rounded-sm heat-level-1"></div>
+                <div class="w-3 h-3 rounded-sm heat-level-2"></div>
+                <div class="w-3 h-3 rounded-sm heat-level-3"></div>
+                <div class="w-3 h-3 rounded-sm heat-level-4"></div>
+                <span>More</span>
+              </div>
+            </div>
+
+            <!-- Heatmap Grid Container -->
+            <div class="overflow-x-auto pb-2">
+              <div class="min-w-[720px]">
+                <div id="yearly-heatmap-container" class="heatmap-grid"></div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 3: PRODUCTIVITY ANALYTICS ================= -->
+        <section id="view-analytics" class="app-view hidden space-y-8">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-slate-100">Productivity Analytics & Visualizations</h3>
+              <p class="text-xs text-slate-400">Interactive telemetry powered by Chart.js</p>
+            </div>
+
+            <!-- Timeframe Selector & Review Actions -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center rounded-xl bg-slate-800 p-1 border border-slate-700/60 text-xs">
+                <button data-analytics-timeframe="7" class="px-2.5 py-1 rounded-lg text-slate-400 transition-colors">7D</button>
+                <button data-analytics-timeframe="14" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-medium transition-colors">14D</button>
+                <button data-analytics-timeframe="30" class="px-2.5 py-1 rounded-lg text-slate-400 transition-colors">30D</button>
+              </div>
+
+              <button id="btn-open-weekly-review" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-indigo-300 font-medium border border-slate-700/60 transition-colors">
+                Weekly Review
+              </button>
+              <button id="btn-open-monthly-review" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-purple-300 font-medium border border-slate-700/60 transition-colors">
+                Monthly Audit
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart 1: Daily Productivity Trend Line -->
+          <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-semibold text-slate-200">Daily Productivity Score Trend</h4>
+              <span class="text-xs font-mono text-indigo-400">Normalized (%)</span>
+            </div>
+            <div class="h-64 sm:h-72 w-full">
+              <canvas id="chart-daily-trend"></canvas>
+            </div>
+          </div>
+
+          <!-- Charts Row 2: Weekly Performance & Category Balance Radar -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-3">
+              <h4 class="text-sm font-semibold text-slate-200">Weekly Consistency by Day of Week</h4>
+              <div class="h-64 w-full">
+                <canvas id="chart-weekly-bar"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-3">
+              <h4 class="text-sm font-semibold text-slate-200">Holistic Category Balance (Radar)</h4>
+              <div class="h-64 w-full">
+                <canvas id="chart-category-radar"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row 3: Habit-wise Completion Rates & Correlation -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-3">
+              <h4 class="text-sm font-semibold text-slate-200">30-Day Success Rate by Habit</h4>
+              <div class="h-64 w-full">
+                <canvas id="chart-habit-rates"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-3">
+              <h4 class="text-sm font-semibold text-slate-200">Habit Correlation & Synergy Matrix</h4>
+              <div id="correlation-matrix-container" class="space-y-2 pt-2"></div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 4: GAMIFICATION & RANKS ================= -->
+        <section id="view-gamification" class="app-view hidden space-y-8">
+          
+          <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                  <span>⚡</span> Gamification & Productivity Ranks
+                </h3>
+                <p class="text-xs text-slate-400">Earn XP with each completed routine, maintain unbroken streaks, and climb tiers.</p>
+              </div>
+              <button onclick="window.app.gamification.triggerMilestoneCelebration('🎉 Practice Confetti Cannon fired!')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 font-medium border border-slate-700/60">
+                🎉 Celebrate Test
+              </button>
+            </div>
+
+            <!-- Rank Hierarchy Showcase -->
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-center">
+              <div class="p-3.5 rounded-2xl bg-slate-800/30 border border-slate-700/40">
+                <div class="text-xs font-semibold text-slate-400">Rank 1</div>
+                <div class="text-base font-bold text-slate-300 mt-1">Beginner</div>
+                <div class="text-[10px] text-slate-500 font-mono mt-0.5">Lvl 1 - 4</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-blue-950/20 border border-blue-500/30">
+                <div class="text-xs font-semibold text-blue-400">Rank 2</div>
+                <div class="text-base font-bold text-blue-300 mt-1">Consistent</div>
+                <div class="text-[10px] text-blue-400/80 font-mono mt-0.5">Lvl 5 - 9</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-500/30">
+                <div class="text-xs font-semibold text-purple-400">Rank 3</div>
+                <div class="text-base font-bold text-purple-300 mt-1">Focused</div>
+                <div class="text-[10px] text-purple-400/80 font-mono mt-0.5">Lvl 10 - 19</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-amber-950/30 border-2 border-amber-500/50 shadow-lg shadow-amber-500/10">
+                <div class="text-xs font-semibold text-amber-400">Current Rank</div>
+                <div class="text-base font-bold text-amber-300 mt-1">Master 👑</div>
+                <div class="text-[10px] text-amber-400/80 font-mono mt-0.5">Lvl 20 - 34</div>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30">
+                <div class="text-xs font-semibold text-rose-400">Peak Rank</div>
+                <div class="text-base font-bold text-rose-300 mt-1">Legend 💎</div>
+                <div class="text-[10px] text-rose-400/80 font-mono mt-0.5">Lvl 35+</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Achievement Badges (16 Badges) -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <span>🏅</span> Achievement Badges
+                </h4>
+                <p class="text-xs text-slate-400">Unlock special badges by achieving streaks, milestones, and discipline feats</p>
+              </div>
+            </div>
+
+            <div id="achievements-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 5: POMODORO FOCUS TIMER ================= -->
+        <section id="view-timer" class="app-view hidden space-y-8">
+          
+          <div class="glass-panel p-6 sm:p-10 rounded-3xl border border-white/5 max-w-2xl mx-auto text-center space-y-8">
+            <div>
+              <h3 class="text-2xl font-extrabold text-slate-100">Deep Work Focus Engine</h3>
+              <p class="text-xs text-slate-400 mt-1">Harness the Pomodoro technique to channel high-leverage focus sessions</p>
+            </div>
+
+            <!-- Mode Selector Pills -->
+            <div class="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
+              <button data-timer-mode="pomodoro" class="px-5 py-2 rounded-xl bg-indigo-600 text-white font-semibold transition-all">Pomodoro (25m)</button>
+              <button data-timer-mode="shortBreak" class="px-5 py-2 rounded-xl text-slate-400 hover:text-slate-200 font-semibold transition-all">Short Break (5m)</button>
+              <button data-timer-mode="longBreak" class="px-5 py-2 rounded-xl text-slate-400 hover:text-slate-200 font-semibold transition-all">Long Break (15m)</button>
+            </div>
+
+            <!-- Circular SVG Timer -->
+            <div class="relative w-64 h-64 sm:w-72 sm:h-72 mx-auto flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90">
+                <circle cx="144" cy="144" r="120" stroke="rgba(255, 255, 255, 0.08)" stroke-width="8" fill="none" />
+                <circle id="timer-progress-ring" cx="144" cy="144" r="120" stroke="#6366F1" stroke-width="8" stroke-linecap="round" fill="none"
+                        style="transition: stroke-dashoffset 1s linear;" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div id="timer-time-display" class="text-5xl sm:text-6xl font-extrabold font-mono text-slate-100 tracking-tighter">25:00</div>
+                <div class="text-xs text-indigo-400 font-medium mt-1 uppercase tracking-wider">Uninterrupted Sprint</div>
+              </div>
+            </div>
+
+            <!-- Linked Habit Dropdown -->
+            <div class="max-w-xs mx-auto">
+              <label class="block text-[11px] text-slate-400 uppercase font-semibold tracking-wider mb-1">Credit Time to Habit:</label>
+              <select id="timer-habit-select" class="w-full bg-slate-800 text-slate-200 text-xs rounded-xl px-3 py-2 border border-slate-700 focus:outline-none"></select>
+            </div>
+
+            <!-- Timer Action Buttons -->
+            <div class="flex items-center justify-center gap-3">
+              <button id="timer-toggle-btn" class="px-8 py-3 rounded-2xl glow-btn text-white font-semibold text-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Start Focus
+              </button>
+
+              <button id="timer-reset-btn" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Reset Timer">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+
+              <button id="timer-skip-btn" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Complete & Log Session">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 6: DAILY JOURNAL & MOOD ================= -->
+        <section id="view-journal" class="app-view hidden space-y-8">
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Journal Editor Form -->
+            <div class="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-3xl border border-white/5 space-y-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                    <span>✍️</span> Daily Reflection & Mindset Journal
+                  </h3>
+                  <p class="text-xs text-slate-400">Capture your wins, energy levels, and mindful thoughts.</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <input id="journal-date-picker" type="date" class="bg-slate-800 text-slate-200 text-xs rounded-xl px-3 py-1.5 border border-slate-700 focus:outline-none">
+                  <span id="journal-saved-status" class="text-[11px] font-mono text-emerald-400 opacity-0 transition-opacity">Saved</span>
+                </div>
+              </div>
+
+              <!-- Emoji Mood Selector -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Today's State of Mind:</label>
+                <div class="flex items-center gap-3">
+                  <button data-mood="amazing" class="w-12 h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-2xl flex items-center justify-center transition-all" title="Amazing">🤩</button>
+                  <button data-mood="good" class="w-12 h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-2xl flex items-center justify-center ring-2 ring-indigo-500 bg-indigo-500/20 scale-110 transition-all" title="Good">😊</button>
+                  <button data-mood="neutral" class="w-12 h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-2xl flex items-center justify-center transition-all" title="Neutral">😐</button>
+                  <button data-mood="down" class="w-12 h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-2xl flex items-center justify-center transition-all" title="Down">😔</button>
+                  <button data-mood="stressed" class="w-12 h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-2xl flex items-center justify-center transition-all" title="Stressed">😫</button>
+                </div>
+              </div>
+
+              <!-- Tags Selector -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Theme Tags:</label>
+                <div class="flex flex-wrap gap-2 text-xs">
+                  <button data-tag="Productive" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-medium transition-colors">Productive</button>
+                  <button data-tag="Energetic" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-medium transition-colors">Energetic</button>
+                  <button data-tag="Grateful" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-medium transition-colors">Grateful</button>
+                  <button data-tag="Challenging" class="px-3 py-1 rounded-xl bg-slate-800 text-slate-400 font-medium transition-colors">Challenging</button>
+                  <button data-tag="Relaxed" class="px-3 py-1 rounded-xl bg-slate-800 text-slate-400 font-medium transition-colors">Relaxed</button>
+                  <button data-tag="Overwhelmed" class="px-3 py-1 rounded-xl bg-slate-800 text-slate-400 font-medium transition-colors">Overwhelmed</button>
+                </div>
+              </div>
+
+              <!-- Notes Text Area -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Daily Reflection & Thoughts:</label>
+                <textarea id="journal-notes-input" rows="6" placeholder="What went well today? What will you do better tomorrow? Auto-saves automatically..."
+                          class="w-full p-4 rounded-2xl bg-slate-900/70 border border-slate-700/80 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 leading-relaxed"></textarea>
+              </div>
+            </div>
+
+            <!-- Reflection History Timeline -->
+            <div class="glass-panel p-6 rounded-3xl border border-white/5 space-y-4">
+              <h4 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                <span>📖</span> Past Journal History
+              </h4>
+              <div id="journal-history-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================= VIEW 7: GOALS & TARGETS ================= -->
+        <section id="view-goals" class="app-view hidden space-y-8">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                <span>🎯</span> Milestone Goals Tracker
+              </h3>
+              <p class="text-xs text-slate-400">Organize and advance your monthly, quarterly, and yearly milestones</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="flex items-center rounded-xl bg-slate-800 p-1 border border-slate-700/60 text-xs">
+                <button data-goals-timeframe="all" class="px-3 py-1 rounded-lg bg-indigo-600 text-white font-medium transition-colors">All</button>
+                <button data-goals-timeframe="monthly" class="px-3 py-1 rounded-lg text-slate-400 transition-colors">Monthly</button>
+                <button data-goals-timeframe="quarterly" class="px-3 py-1 rounded-lg text-slate-400 transition-colors">Quarterly</button>
+                <button data-goals-timeframe="yearly" class="px-3 py-1 rounded-lg text-slate-400 transition-colors">Yearly</button>
+              </div>
+
+              <button onclick="window.app.openAddGoalModal()" class="px-4 py-2 rounded-xl glow-btn text-white text-xs font-semibold flex items-center gap-1">
+                <span>+</span> New Goal
+              </button>
+            </div>
+          </div>
+
+          <!-- Goals List Grid -->
+          <div id="goals-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-slate-800 z-40 px-4 py-2 flex items-center justify-around text-[10px]">
+      <button data-mobile-nav="dashboard" class="flex flex-col items-center gap-1 text-indigo-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+        Today
+      </button>
+
+      <button data-mobile-nav="matrix" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Matrix
+      </button>
+
+      <button data-mobile-nav="analytics" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        Stats
+      </button>
+
+      <button data-mobile-nav="timer" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Timer
+      </button>
+
+      <button onclick="window.app.openSettingsModal()" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        </svg>
+        More
+      </button>
+    </nav>
+
+  </div>
+
+
+  <!-- ================= MODALS & DRAWERS ================= -->
+
+  <!-- 1. Add / Edit Habit Modal -->
+  <div id="habit-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-md w-full space-y-5 animate-in">
+      <div class="flex items-center justify-between">
+        <h4 id="habit-modal-title" class="text-lg font-bold text-slate-100">Add New Habit</h4>
+        <button onclick="window.app.habits.closeModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+
+      <form id="habit-modal-form" class="space-y-4 text-xs">
+        <input type="hidden" id="habit-id-input">
+
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Habit Name *</label>
+          <input id="habit-name-input" type="text" required placeholder="e.g. Read 20 Pages"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Description (Optional)</label>
+          <input id="habit-desc-input" type="text" placeholder="e.g. Expand knowledge before sleep"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Category</label>
+            <select id="habit-category-select" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+              <option value="Health">Health</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Study">Study</option>
+              <option value="Work">Work</option>
+              <option value="Personal Growth">Personal Growth</option>
+              <option value="Custom">Custom</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Priority</label>
+            <select id="habit-priority-select" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Emoji Icon</label>
+            <input id="habit-icon-input" type="text" value="🎯" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-center text-lg focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Color</label>
+            <input id="habit-color-input" type="color" value="#6366F1" class="w-full h-10 p-1 rounded-xl bg-slate-900 border border-slate-700 cursor-pointer">
+          </div>
+
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Reminder</label>
+            <input id="habit-reminder-input" type="time" value="09:00" class="w-full px-2 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.app.habits.closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl glow-btn text-white font-semibold">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add Goal Modal -->
+  <div id="goal-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-md w-full space-y-5 animate-in">
+      <div class="flex items-center justify-between">
+        <h4 class="text-lg font-bold text-slate-100">Add Milestone Goal</h4>
+        <button onclick="window.app.goals.closeModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+
+      <form id="goal-modal-form" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Goal Title *</label>
+          <input id="goal-title-input" type="text" required placeholder="e.g. Read 5 non-fiction books"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Timeframe</label>
+            <select id="goal-timeframe-select" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Category</label>
+            <select id="goal-category-select" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+              <option value="Personal Growth">Personal Growth</option>
+              <option value="Work">Work</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Study">Study</option>
+              <option value="Health">Health</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Target Number</label>
+            <input id="goal-target-input" type="number" min="1" value="10" required
+                   class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Unit</label>
+            <input id="goal-unit-input" type="text" value="sessions" placeholder="e.g. pages, hrs, sessions"
+                   class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.app.goals.closeModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl glow-btn text-white font-semibold">Create Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Settings & Data Backup Modal -->
+  <div id="settings-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-lg w-full space-y-6 animate-in max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h4 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+          <span>⚙️</span> Preferences & Data Management
+        </h4>
+        <button onclick="window.app.closeAllModals()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Appearance Settings -->
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+          <h5 class="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">Visual Theme & Accent</h5>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Theme Mode</span>
+            <button onclick="window.app.toggleTheme()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors">
+              Toggle Dark / Light
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Primary Accent Color</span>
+            <select id="setting-accent-select" class="bg-slate-800 text-slate-200 rounded-lg px-2.5 py-1.5 border border-slate-700 focus:outline-none">
+              <option value="indigo">Indigo (Default)</option>
+              <option value="violet">Violet</option>
+              <option value="emerald">Emerald</option>
+              <option value="rose">Rose</option>
+              <option value="amber">Amber</option>
+              <option value="cyan">Cyan</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Audio & Notification Toggles -->
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+          <h5 class="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">Audio & Notifications</h5>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Web Audio UI Sound Effects</span>
+            <input type="checkbox" id="setting-sound-toggle" checked class="w-4 h-4 accent-indigo-600 rounded cursor-pointer">
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Browser / In-App Habit Reminders</span>
+            <input type="checkbox" id="setting-notif-toggle" checked class="w-4 h-4 accent-indigo-600 rounded cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Data Import & Export Engine -->
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+          <h5 class="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">Data Export & Backups</h5>
+          
+          <div class="grid grid-cols-2 gap-2.5">
+            <button id="btn-export-excel" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium flex items-center justify-center gap-1.5">
+              <span>📊</span> Export Excel (.xlsx)
+            </button>
+            <button id="btn-export-pdf" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium flex items-center justify-center gap-1.5">
+              <span>📄</span> Export PDF Report
+            </button>
+            <button id="btn-export-json" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium flex items-center justify-center gap-1.5">
+              <span>💾</span> Download JSON Backup
+            </button>
+            <label class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>📥</span> Restore JSON
+              <input type="file" id="input-import-json" accept=".json" class="hidden">
+            </label>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+            <span class="text-rose-400">Reset All Routine Data</span>
+            <button id="btn-reset-data" class="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium">
+              Reset to Defaults
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Profile Customization Modal -->
+  <div id="profile-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-md w-full space-y-5 animate-in">
+      <div class="flex items-center justify-between">
+        <h4 class="text-lg font-bold text-slate-100">User Profile Settings</h4>
+        <button onclick="window.app.closeAllModals()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+
+      <form id="profile-modal-form" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Your Name</label>
+          <input id="profile-name-input" type="text" required
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Avatar Emoji</label>
+          <input id="profile-avatar-input" type="text" value="⚡"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-center text-xl focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Personal Motto / Tagline</label>
+          <input id="profile-tagline-input" type="text"
+                 class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.app.closeAllModals()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl glow-btn text-white font-semibold">Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Weekly & Monthly Review Report Modal -->
+  <div id="review-report-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-2xl w-full space-y-6 animate-in max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h4 id="review-report-title" class="text-xl font-bold text-slate-100">Productivity Review Report</h4>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700">Print / PDF</button>
+          <button onclick="window.app.insights.closeReviewModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+        </div>
+      </div>
+
+      <div id="review-report-content"></div>
+    </div>
+  </div>
+
+  <!-- 6. Keyboard Shortcuts Cheatsheet Modal -->
+  <div id="shortcuts-modal" class="app-modal fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 max-w-md w-full space-y-5 animate-in">
+      <div class="flex items-center justify-between">
+        <h4 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+          <span>⌨️</span> Keyboard Shortcuts
+        </h4>
+        <button onclick="window.app.closeAllModals()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+      </div>
+
+      <div class="space-y-2.5 text-xs text-slate-300">
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Add New Habit</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">N</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Toggle Dark / Light Theme</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">D</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Open Pomodoro Focus Timer</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">P</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Open Daily Reflection Journal</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">J</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Show Shortcuts Cheatsheet</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">?</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span>Close Open Modal</span>
+          <kbd class="px-2 py-1 rounded bg-slate-800 text-indigo-400 font-mono font-bold border border-slate-700">Esc</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main ES6 Modular Entrypoint -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
