@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HabitFlow Pro - Modern Habit Tracker & Productivity Operating System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +32,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="selection:bg-indigo-500 selection:text-white">
 
@@ -201,6 +202,10 @@
           <button id="top-nav-avatar" onclick="window.app.openProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-indigo-500/40 flex items-center justify-center text-sm hover:scale-105 transition-transform" title="User Profile">
             ⚡
           </button>
+          <button id="logoutBtn"
+        class="px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium border border-red-500/30">
+    Logout
+</button>
         </div>
       </header>
 
@@ -1179,6 +1184,6 @@
   </div>
 
   <!-- Main ES6 Modular Entrypoint -->
-  <script type="module" src="app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
