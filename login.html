@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Sign in to HabitFlow and build a better daily routine.">
+  <title>Sign in | HabitFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="welcome-panel" aria-label="About HabitFlow">
+      <a class="brand" href="index.html" aria-label="HabitFlow home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M7 16.5 13 22l12-13" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>habitflow<span class="brand-period">.</span></span>
+      </a>
+
+      <div class="welcome-copy">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> A little better, every day</span>
+        <h1>Small habits.<br><span>Remarkable</span><br>momentum.</h1>
+        <p>Make room for the routines that move you forward. Track your progress, celebrate the wins, and keep showing up.</p>
+      </div>
+
+      <div class="progress-card" aria-label="Your progress, one day at a time">
+        <div class="progress-card-top">
+          <span class="progress-icon" aria-hidden="true">✦</span>
+          <div>
+            <strong>Consistency looks good on you.</strong>
+            <span>Your next chapter starts today.</span>
+          </div>
+        </div>
+        <div class="week-streak" aria-hidden="true">
+          <span class="streak-day done">M<i>✓</i></span>
+          <span class="streak-day done">T<i>✓</i></span>
+          <span class="streak-day done">W<i>✓</i></span>
+          <span class="streak-day today">T<i>•</i></span>
+          <span class="streak-day">F<i></i></span>
+          <span class="streak-day">S<i></i></span>
+          <span class="streak-day">S<i></i></span>
+        </div>
+      </div>
+      <p class="welcome-footer">Built for progress, not perfection.</p>
+    </section>
+
+    <section class="form-panel" aria-labelledby="form-title">
+      <div class="form-panel-inner">
+        <div class="mobile-brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M7 16.5 13 22l12-13" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span>habitflow<span class="brand-period">.</span></span>
+        </div>
+
+        <div class="form-heading">
+          <span class="form-kicker">YOUR SPACE TO GROW</span>
+          <h2 id="form-title">Welcome back</h2>
+          <p id="form-subtitle">Pick up where you left off.</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Account action">
+          <button class="auth-tab is-active" id="loginTab" type="button" role="tab" aria-selected="true">Sign in</button>
+          <button class="auth-tab" id="signupTab" type="button" role="tab" aria-selected="false">Create account</button>
+        </div>
+
+        <div id="authMessage" class="auth-message" role="status" aria-live="polite" hidden></div>
+
+        <form id="authForm" novalidate>
+          <label class="field-label" for="email">Email address</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3.5" y="5" width="17" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/>
+              <path d="m5 7 7 5.5L19 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+
+          <div class="password-label-row">
+            <label class="field-label" for="password">Password</label>
+            <button class="text-button" id="resetPasswordBtn" type="button">Forgot password?</button>
+          </div>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            <input id="password" name="password" type="password" placeholder="At least 6 characters" autocomplete="current-password" minlength="6" required>
+            <button class="password-toggle" id="passwordToggle" type="button" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7"/>
+                <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+              </svg>
+            </button>
+          </div>
+
+          <button class="submit-button" id="submitBtn" type="submit">
+            <span id="submitLabel">Sign in</span>
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="divider"><span>or continue with</span></div>
+
+        <button class="google-button" id="googleBtn" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.5 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.4l7.8 6.1C12.3 13.8 17.6 9.5 24 9.5Z" transform="translate(0 5)"/>
+            <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 6.9l7.3 5.7c4.3-4 6.9-9.9 6.9-17.1Z" transform="translate(0 -1)"/>
+            <path fill="#FBBC05" d="M10.4 28.7a14.5 14.5 0 0 1 0-9.4l-7.8-6.1a24 24 0 0 0 0 21.6l7.8-6.1Z" transform="translate(0 5)"/>
+            <path fill="#34A853" d="M24 48c6.5 0 12-2.1 16-5.8l-7.3-5.7c-2 1.3-4.6 2-8.7 2-6.4 0-11.7-4.3-13.6-10l-7.8 6.1C6.5 42.6 14.6 48 24 48Z" transform="translate(0 -5)"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <p class="terms-copy">By continuing, you agree to focus on what matters<br class="desktop-break"> and give yourself room to grow.</p>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>
