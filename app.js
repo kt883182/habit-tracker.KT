@@ -10,6 +10,22 @@ import { TimerManager } from './timer.js';
 import { JournalManager } from './journal.js';
 import { GoalsManager } from './goals.js';
 import { ExportManager } from './export.js';
+import { auth } from "./firebase.js";
+
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        window.location.href = "login.html";
+
+    }
+
+});
 
 class App {
   constructor() {
@@ -49,7 +65,19 @@ class App {
     this.initSettingsModal();
     this.initProfileModal();
     this.initQuickActionButtons();
+    const logoutBtn = document.getElementById("logoutBtn");
 
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", async () => {
+
+        await signOut(auth);
+
+        window.location.href = "login.html";
+
+    });
+
+}
     // Initial renders
     this.renderHeroStats();
     this.habits.render();
