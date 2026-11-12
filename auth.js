@@ -7,7 +7,6 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-
 const elements = {
   email: document.getElementById("email"),
   password: document.getElementById("password"),
