@@ -17,16 +17,6 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-onAuthStateChanged(auth, (user) => {
-
-    if (!user) {
-
-        window.location.href = "login.html";
-
-    }
-
-});
-
 class App {
   constructor() {
     this.currentTab = 'dashboard';
@@ -67,17 +57,25 @@ class App {
     this.initQuickActionButtons();
     const logoutBtn = document.getElementById("logoutBtn");
 
-if (logoutBtn) {
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        if (logoutBtn.disabled) return;
 
-    logoutBtn.addEventListener("click", async () => {
+        const originalLabel = logoutBtn.textContent;
+        logoutBtn.disabled = true;
+        logoutBtn.textContent = "Signing out...";
 
-        await signOut(auth);
-
-        window.location.href = "login.html";
-
-    });
-
-}
+        try {
+          await signOut(auth);
+          window.location.replace("./login.html");
+        } catch (error) {
+          console.error("Firebase sign-out failed:", error);
+          logoutBtn.disabled = false;
+          logoutBtn.textContent = originalLabel;
+          this.showToast("Could not sign out. Check your connection and try again.", "danger");
+        }
+      });
+    }
     // Initial renders
     this.renderHeroStats();
     this.habits.render();
@@ -592,7 +590,28 @@ if (logoutBtn) {
   }
 }
 
-// Global bootstrap
-document.addEventListener('DOMContentLoaded', () => {
+// Start the dashboard only after Firebase restores the persisted auth state.
+function bootstrapApp() {
+  if (window.app) return;
   window.app = new App();
-});
+}
+
+onAuthStateChanged(
+  auth,
+  (user) => {
+    if (!user) {
+      window.location.replace("./login.html");
+      return;
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootstrapApp, { once: true });
+    } else {
+      bootstrapApp();
+    }
+  },
+  (error) => {
+    console.error("Could not restore Firebase authentication state:", error);
+    window.location.replace("./login.html");
+  }
+);
