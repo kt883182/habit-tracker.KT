@@ -59,10 +59,23 @@ cd "C:\Users\Kartik Tiwari\.gemini\antigravity\scratch\habit-tracker"
 python -m http.server 8080
 ```
 Then open your browser and navigate to:
-[http://localhost:8080](http://localhost:8080)
+[http://localhost:8080/login.html](http://localhost:8080/login.html)
 
-### Method 2: Direct Browser Launch
-Simply double-click or open `index.html` in Google Chrome, Microsoft Edge, Safari, or Firefox.
+The app uses JavaScript modules and Firebase Authentication, so it must be served over HTTP. Opening `index.html` or `login.html` directly with `file://` will not work reliably.
+
+### Firebase Authentication setup
+In the Firebase console for the configured project:
+
+1. Enable **Email/Password** and **Google** under Authentication → Sign-in method.
+2. Under Authentication → Settings → Authorized domains, add `habit-tracker-liard-kappa.vercel.app` for the deployed Vercel site. Add `localhost` separately for local testing.
+3. If the Vercel project uses a different production/custom domain, add that hostname too (without `https://` or a path).
+
+The login, dashboard, and logout redirects are relative to the current site origin, so they work on Vercel and other hosts without redirecting users to localhost. Redeploy this project after code changes. Firebase's authorized-domain allowlist is configured in the Firebase Console and cannot be changed by this static app's code.
+
+### Deploying the current files to Vercel
+This project is a static site and has no build step. Deploy this folder as the Vercel project root, keeping `index.html`, `login.html`, `css/`, `js/`, and `vercel.json` together. The Vercel rewrite sends `/` to the login page. The login page loads `css/login.css` and `js/auth.js`; do not deploy an older flat `auth.js` that expects the old `signupBtn`/`loginBtn` markup. After deployment, verify `/js/auth.js` and `/js/firebase.js` return HTTP 200 and `/` opens the sign-in page. If login fails with `auth/unauthorized-domain`, add the hostname shown by the error to the Firebase Authorized domains list.
+
+The login form also has a JavaScript-load fallback that prevents the browser's default GET submission, so passwords are not added to the URL if the auth module fails. If credentials have appeared in a URL, change/reset that password and avoid sharing the URL.
 
 ---
 
@@ -71,9 +84,13 @@ Simply double-click or open `index.html` in Google Chrome, Microsoft Edge, Safar
 ```
 habit-tracker/
 ├── index.html            # Main HTML5 application shell & view templates
+├── login.html            # Firebase sign-in, account creation & password reset
 ├── css/
-│   └── style.css         # Glassmorphism tokens, dark/light themes, heatmap styling
+│   ├── style.css         # Glassmorphism tokens, dark/light themes, heatmap styling
+│   └── login.css         # Responsive sign-in page layout
 ├── js/
+│   ├── auth.js           # Firebase email/password and Google authentication
+│   ├── firebase.js       # Firebase app and Authentication initialization
 │   ├── app.js            # Master application coordinator & event router
 │   ├── store.js          # Central reactive state, LocalStorage persistence & defaults
 │   ├── audio.js          # Web Audio API sound synthesizer
