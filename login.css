@@ -307,6 +307,37 @@ button {
   font-size: 13px;
 }
 
+.runtime-notice {
+  display: grid;
+  gap: 7px;
+  margin: -7px 0 20px;
+  padding: 13px 14px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 10px;
+  color: #f4d99a;
+  background: rgba(120, 83, 16, 0.16);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.runtime-notice[hidden] {
+  display: none;
+}
+
+.runtime-notice strong {
+  color: #ffe6ad;
+  font-size: 12px;
+}
+
+.runtime-notice code {
+  color: #fff0c8;
+}
+
+.runtime-notice a {
+  color: #c4baff;
+  font-weight: 700;
+}
+
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
